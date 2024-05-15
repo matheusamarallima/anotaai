@@ -15,7 +15,7 @@ public class Product {
     @Id
     private String id;
     private String owner;
-    private String category;
+    private Category category;
     private String price;
     private String description;
 }
