@@ -15,6 +15,7 @@ public class Product {
 
     @Id
     private String id;
+    private String title;
     private String owner;
     private Category category;
     private double price;
@@ -22,6 +23,7 @@ public class Product {
 
     public Product(ProductDTO productDTO) {
         this.owner = productDTO.owner();
+        this.title = productDTO.title();
         this.category = productDTO.category();
         this.price = productDTO.price();
         this.description = productDTO.description();

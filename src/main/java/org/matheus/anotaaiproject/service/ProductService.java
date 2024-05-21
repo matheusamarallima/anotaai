@@ -1,10 +1,13 @@
 package org.matheus.anotaaiproject.service;
 
+import lombok.RequiredArgsConstructor;
 import org.matheus.anotaaiproject.entities.Category;
 import org.matheus.anotaaiproject.entities.Product;
 import org.matheus.anotaaiproject.entities.DTOs.ProductDTO;
 import org.matheus.anotaaiproject.repositories.CategoryRepository;
 import org.matheus.anotaaiproject.repositories.ProductRepository;
+import org.matheus.anotaaiproject.service.Aws.AwsSnsService;
+import org.matheus.anotaaiproject.service.Aws.MessageDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -13,17 +16,19 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ProductService {
 
-    @Autowired
-    ProductRepository ProductRepository;
-    @Autowired
-    CategoryRepository categoryRepository;
+
+    private final ProductRepository ProductRepository;
+    private final CategoryRepository categoryRepository;
+    private final AwsSnsService awsSnsService;
 
     public Product create(ProductDTO ProductData) {
         Product product = new Product(ProductData);
         Optional<Category> categoryOptional = categoryRepository.findById(product.getCategory().getId());
         if(categoryOptional.isPresent()){
+            awsSnsService.publish(new MessageDTO(product.toString()));
             return ProductRepository.save(product);
         }
         categoryRepository.save(product.getCategory());
@@ -46,6 +51,8 @@ public class ProductService {
             }
             categoryRepository.save(product1.getCategory());
             ProductRepository.save(product1);
+
+            awsSnsService.publish(new MessageDTO(product1.toString()));
             return ResponseEntity.ok(product1);
         }
         return ResponseEntity.notFound().build();
