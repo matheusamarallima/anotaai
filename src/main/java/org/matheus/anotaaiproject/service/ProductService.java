@@ -46,6 +46,7 @@ public class ProductService {
             product1.setId(id);
             Optional<Category> categoryOptional = categoryRepository.findById(product1.getCategory().getId());
             if(categoryOptional.isPresent()){
+                awsSnsService.publish(new MessageDTO(product1.toString()));
                 ProductRepository.save(product1);
                 return ResponseEntity.ok(product1);
             }
